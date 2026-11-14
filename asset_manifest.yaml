@@ -71,6 +71,13 @@ assets:
     formats: [luxury_carousel, cinematic_reel]
     default_caption: "Yes - there's a private gym too"
 
+  - id: 9
+    role: "Aerial Exterior Flyover"
+    type: video
+    path: "public_assets/DJI_0147.mp4"
+    formats: [cinematic_reel]
+    default_caption: "Your private palace, from above"
+
 # Explicitly excluded, carried over from build_rough_cut.py so this pipeline
 # doesn't re-select something already ruled out there for a documented reason.
 excluded:
