@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+drafts/*
+review_queue/*
+published_log/*
+!drafts/.gitkeep
+!review_queue/.gitkeep
+!published_log/.gitkeep
+.DS_Store

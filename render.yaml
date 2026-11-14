@@ -1,0 +1,31 @@
+# Deploy with: Render dashboard -> New -> Blueprint -> point at this repo.
+# Set ANTHROPIC_API_KEY, META_ACCESS_TOKEN, META_IG_USER_ID as secrets in the
+# Render dashboard on the cron service — do not put real values in this file.
+#
+# Deploy order matters once: the static site must exist first so you can read
+# its onrender.com URL and paste it into PUBLIC_ASSET_BASE_URL on the cron
+# service below. After that, both services redeploy independently.
+services:
+  - type: web
+    name: english-mango-assets
+    runtime: static
+    staticPublishPath: public_assets
+    buildCommand: ""
+
+  - type: cron
+    name: english-mango-daily-post
+    runtime: python
+    schedule: "0 9 * * *"   # 09:00 UTC daily; adjust to your actual posting time
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python scripts/orchestrate.py"
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: META_ACCESS_TOKEN
+        sync: false
+      - key: META_IG_USER_ID
+        sync: false
+      - key: META_GRAPH_VERSION
+        value: v19.0
+      - key: PUBLIC_ASSET_BASE_URL
+        value: https://english-mango-assets.onrender.com   # update if Render assigns a different subdomain

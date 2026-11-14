@@ -1,0 +1,53 @@
+"""Generates hook + caption + per-beat on-screen text for today's format,
+grounded in the brand sheet, via the Claude API (not a live chat session)."""
+import json
+import os
+from pathlib import Path
+
+from anthropic import Anthropic
+
+ROOT = Path(__file__).resolve().parents[1]
+BRAND_SHEET = ROOT.parent / "AI video editor" / "references" / "brand-sheet.md"
+
+SYSTEM_PROMPT = """You write Instagram copy for English Mango, a luxury villa stay \
+in Haridwar. Follow the attached brand sheet exactly: tone, caption structure, \
+on-screen text rules. Output strict JSON matching the given schema, nothing else."""
+
+OUTPUT_SCHEMA = {
+    "hook": "string, <= 12 words, the first line shown on-screen or as the opening caption line",
+    "caption": "string, the full Instagram caption using the feature_list structure from the brand sheet",
+    "beats": [
+        {"asset_role": "string, must match one of the given asset roles", "on_screen_text": "string, <= 2 short lines"}
+    ],
+}
+
+
+def generate(format_key, format_spec, selected_assets):
+    brand_sheet_text = BRAND_SHEET.read_text()
+    asset_roles = [a["role"] for a in selected_assets]
+
+    client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    message = client.messages.create(
+        model="claude-sonnet-5",
+        max_tokens=1500,
+        system=SYSTEM_PROMPT,
+        messages=[
+            {
+                "role": "user",
+                "content": (
+                    f"BRAND SHEET:\n{brand_sheet_text}\n\n"
+                    f"FORMAT: {format_spec['label']} ({format_spec['publish_type']})\n"
+                    f"AVAILABLE ASSET ROLES (use only these, in a sensible order): {asset_roles}\n\n"
+                    f"OUTPUT SCHEMA (strict JSON, no prose outside the JSON):\n{json.dumps(OUTPUT_SCHEMA, indent=2)}"
+                ),
+            }
+        ],
+    )
+    text = message.content[0].text
+    return json.loads(text)
+
+
+def save_draft(date, draft):
+    path = ROOT / "drafts" / f"{date.isoformat()}.json"
+    path.write_text(json.dumps(draft, indent=2))
+    return path

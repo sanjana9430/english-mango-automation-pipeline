@@ -1,0 +1,92 @@
+# Curated asset list, seeded from ../AI video editor/scripts/build_rough_cut.py's
+# own ASSET_MANIFEST. Deliberately hand-maintained, not filename-guessed — see
+# SETUP.md "Asset tagging" for why. Add one entry per new asset you want eligible
+# for posting; anything not listed here is never selected automatically.
+#
+# `path` points into public_assets/ — a canonical copy of just the curated
+# files, deployed as its own Render static site so Meta's Graph API has a
+# public URL to fetch (see SETUP.md "Asset hosting"). This repo's copy is the
+# one that actually gets posted; ../AI video editor/Asset/ is the working
+# source you edit/replace footage in. When you approve a new asset there,
+# copy it into public_assets/ and add a line here — same one-line-per-asset
+# discipline as the rest of this manifest.
+#
+# formats: which format keys (from content_calendar.yaml) this asset is eligible for.
+# role: human label used in ideation prompts and storyboard captions.
+
+assets:
+  - id: 1
+    role: "Exterior Hero"
+    type: image
+    path: "public_assets/villa-lawn-green.jpg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: "Your private palace in Haridwar"
+
+  - id: 2
+    role: "Gardens"
+    type: image
+    path: "public_assets/villa-courtyard-green.jpg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: "Open lawns, made for slow mornings"
+
+  - id: 3
+    role: "Rooftop Pool Retreat"
+    type: image
+    path: "public_assets/pool-night.jpg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: "A rooftop pool, after dark"
+
+  - id: 4
+    role: "Rooftop Pool Retreat (motion)"
+    type: video
+    path: "public_assets/pool-night-loop.mp4"
+    formats: [cinematic_reel]
+    default_caption: ""
+
+  - id: 5
+    role: "Luxury Suites"
+    type: image
+    path: "public_assets/tv.JPG"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: "Six suites. Room to truly settle in."
+
+  - id: 6
+    role: "Private Marble Sanctum"
+    type: image
+    path: "public_assets/temple-festive-entrance.jpg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: "A marble sanctum, lit for the festival"
+
+  - id: 7
+    role: "Private Home Theatre"
+    type: image
+    path: "public_assets/theatre-yoga-session.jpg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: "Cinema seats. Devotional screenings. Family nights."
+
+  - id: 8
+    role: "Bonus: Private Gym"
+    type: image
+    path: "public_assets/WhatsApp Image 2026-11-14 at 11.44.34 AM.jpeg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: "Yes - there's a private gym too"
+
+# Explicitly excluded, carried over from build_rough_cut.py so this pipeline
+# doesn't re-select something already ruled out there for a documented reason.
+excluded:
+  - pattern: "grass*.JPG"
+    reason: "Pre-landscaping construction state, not finished turf."
+  - pattern: "WhatsApp Image 2026-02-05* / 2026-03-22*"
+    reason: "Build-progress documentation, not guest-facing."
+  - pattern: "theatre.JPG, theatre 2.JPG"
+    reason: "Room reads unstaged next to theatre-yoga-session.jpg."
+  - pattern: "well lit pool.mp4"
+    reason: "Duplicate of pool-night-loop.mp4."
+  - pattern: "theatre experience.mp4"
+    reason: "A third-party film is visibly playing on screen for the whole clip - not ours to publish."
+  - pattern: "pool-night-loop-poster.jpg"
+    reason: "Poster frame of pool-night-loop.mp4, redundant."
+  - pattern: "temple-festive-entrance_1.jpg"
+    reason: "Near-duplicate of the selected frame."
+  - pattern: "tv2/3/5-11.JPG"
+    reason: "Extra angles of the same suite, held in reserve."

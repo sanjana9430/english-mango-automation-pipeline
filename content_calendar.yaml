@@ -1,0 +1,28 @@
+# Weekday -> default format. Edit this to change the recurring schedule.
+weekday_defaults:
+  monday: null          # no post
+  tuesday: luxury_carousel
+  wednesday: null
+  thursday: null
+  friday: cinematic_reel
+  saturday: luxury_carousel
+  sunday: null
+
+# Per-date overrides (holidays, launches, one-offs). Takes priority over weekday_defaults.
+# Format: YYYY-MM-DD: format_key, or YYYY-MM-DD: null to force a skip that day.
+overrides: {}
+
+# Format definitions: what each key means downstream (ideation prompt, asset count, publish type).
+formats:
+  luxury_carousel:
+    label: "Luxury Carousel"
+    publish_type: carousel
+    min_slides: 3
+    max_slides: 10
+    caption_style: feature_list   # property feature -> bullets -> location -> save/share prompt
+  cinematic_reel:
+    label: "Cinematic Reel"
+    publish_type: reel
+    min_beats: 5
+    max_beats: 9
+    caption_style: feature_list
