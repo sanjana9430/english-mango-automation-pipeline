@@ -1,6 +1,6 @@
-# English Mango — Reel Brand Sheet
+# English Mango — Content Brand Sheet
 
-Built from two sources: (1) the existing englishmango.com site, read directly from its code, and (2) 7 reference reels in the luxury-stay/staycation space, reviewed on-page (no video files downloaded — see note at bottom).
+Built from three sources: (1) the existing englishmango.com site, read directly from its code, (2) 7 reference reels in the luxury-stay/staycation space, reviewed on-page (no video files downloaded — see note at bottom), and (3) 4 reference carousel posts in the same niche, added 2026-11-15 when carousel days were scheduled but the sheet only covered Reels (see section 4).
 
 ## 1. englishmango.com — the source of truth
 
@@ -50,6 +50,33 @@ Reconciling the two — where the reel genre's best practice and the site's exis
 - **Caption copy (the paragraph, not on-screen text):** property feature → short bullet list of what's included (pool, suites, temple, theatre, lift) → location line → a save/share prompt. This matches both the reel genre's convention and englishmango.com's own feature-list structure on the site.
 - **Music:** moody instrumental or lo-fi, not trending meme audio — consistent with both the reel set and the "Apple-style, premium" brief.
 
+## 4. What the reference carousels do
+
+Reels and carousels are different genres on this platform, not just a format swap — a carousel's first slide has to earn a swipe, and only the first slide reliably gets seen. Reviewed 4 real carousel posts in the same India luxury-villa/staycation niche as the reels above (data pulled via Instagram's own post metadata and slide images, not downloaded media — same no-download principle as the reel research; one additional @explorishh carousel, an awards-ceremony post, turned up in the same data pull but was excluded as off-niche):
+
+| Creator | Post | Slides | Cover-slide treatment | Inner-slide treatment |
+|---|---|---|---|---|
+| @travel_pods_ | Mudhouse retreat near Delhi-NCR | 10 | 4-photo grid collage + bold yellow marker-style hook ("This is not Bali..") + plain white location subtext, both centered on the grid's dividing line | Same 4-photo-grid layout repeated, one plain white one-line caption per amenity ("Mud Cottages with cozy room & rustic charm," "Swimming pool made for lazy afternoons") |
+| @explorishh | "4 Newly Launched Stays Near Nashik" | 5 | Single full-bleed hero photo; small sans-serif intro line ("4 Newly Launched Stays Near") + large serif proper-noun anchor ("NASHIK"), top-left; subtle creator tag bottom-left; ">>" swipe-prompt bottom-right | One villa per slide (this post is a multi-property roundup, not a single-property amenity tour) |
+| @travelwithkavs | Ladakh carousel | 7 | Caption reviewed, not slide images — contributes to the caption-pattern finding below, not the visual-treatment table | — |
+
+Only the two rows above were visually inspected slide-by-slide; the third contributed caption data only.
+
+**Two real cover-slide conventions, not one:** a punchy, colorful, meme-adjacent hook (yellow marker font, "this is not X" framing) over a busy photo grid; or a quieter single-hero-photo cover with the location name as a large serif anchor and a small swipe-prompt. The second is closer to englishmango.com's own existing typographic hierarchy (Playfair Display already *is* the site's proper-noun/heading font) — the first would be introducing a voice the brand doesn't have anywhere else.
+
+**Caption pattern, confirmed and sharper than the reel research found:** every one of the 4 posts leans harder into bullets/emoji than the reels did — amenity lists with a leading emoji per line (🏊 🎯 🚜 🍽️ 🌄), a location pin, and an explicit "Save & Share this post" or "Save this for your next trip" line near the top or bottom of the caption, not just at the end.
+
+**Slide count:** 5, 7, 8, and 10 across the 4 posts reviewed — `content_calendar.yaml`'s `min_slides: 3` / `max_slides: 10` for `luxury_carousel` already covers this range, no change needed there.
+
+## 5. Merged direction for English Mango carousels
+
+English Mango is one villa, not a multi-property roundup — so the "4 Newly Launched Stays" listicle structure doesn't map directly; it's closer in spirit to `@travel_pods_`'s single-property amenity tour (one feature per slide), just not its busy 4-photo-grid-per-slide execution.
+
+- **Cover slide:** single full-bleed photo (the Exterior Hero or a comparable wide shot), not a 4-photo grid — grids read as busier/more listicle-y than this brand's existing calm, uncluttered site. Large **Playfair Display** proper-noun anchor ("HARIDWAR" or "ENGLISH MANGO") plus a short **Inter** intro line above it, same font pairing already established for reels' title/end cards in section 3. Small swipe-prompt in the corner (the reference set's `>>` convention, or Instagram's own carousel dots).
+- **Inner slides:** one feature per slide, single photo (not a grid — a grid only makes sense when a slide covers multiple sub-areas of one amenity, which these aren't), with the same **plain cream-text-on-forest-shadow caption treatment** already defined in `brand-tokens.json`'s `caption_style` for reels — reused here for consistency across formats, rather than adopting the reference set's plain-white-no-shadow convention.
+- **Caption copy:** sharpen section 3's caption guidance with what the carousel set confirmed more strongly — lead with a "Save this for your next trip" or "Save & share" line near the top (not just the end), then an emoji-led bullet per amenity (🏊 pool, 🛕 private marble sanctum, 🎬 home theatre, 🏋️ gym), then the location line. More emoji-forward than the reel captions, matching what this specific sub-genre (carousel, not reel) actually does.
+- **Last slide:** CTA/end-card, same convention as the reel's CTA beat — property name + englishmango.com, Playfair Display, held static (a carousel's last slide is naturally "held" the way a reel's end card is).
+
 ## Note on sourcing
 
-These 7 reels were reviewed directly on their Instagram pages (thumbnail frame, on-screen text, and caption copy) to extract style patterns only. No video files were downloaded or saved — that's a deliberate call to stay clear of using other creators' copyrighted footage without permission. If you want the actual clips as literal visual reference (not just notes), save them yourself via Instagram's native save/share or a screen recording and drop the files directly into this `references/` folder.
+The 7 reference reels (section 2) and 4 reference carousels (section 4) were reviewed via Instagram's own post data and on-page review — thumbnail/slide frames, on-screen text, and caption copy — to extract style patterns only. No video files or image files were downloaded or saved — that's a deliberate call to stay clear of using other creators' copyrighted footage without permission. If you want actual clips/images as literal visual reference (not just notes), save them yourself via Instagram's native save/share or a screen recording and drop the files directly into this `references/` folder.
