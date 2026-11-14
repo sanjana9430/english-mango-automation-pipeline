@@ -1,0 +1,29 @@
+{
+  "source": "englishmango.com (pulled from site CSS) + reel style study in brand-sheet.md",
+  "colors": {
+    "background": "#FAF8F5",
+    "foreground": "#1F2E26",
+    "primary": "#9F5E09",
+    "accent": "#D16C47",
+    "secondary": "#295640",
+    "muted": "#EBE7E0"
+  },
+  "fonts": {
+    "display": { "family": "Playfair Display", "regular": "fonts/PlayfairDisplay-Regular.ttf", "semibold": "fonts/PlayfairDisplay-SemiBold.ttf", "use": "title card and end card only - still frames" },
+    "body": { "family": "Inter", "regular": "fonts/Inter-Regular.ttf", "semibold": "fonts/Inter-SemiBold.ttf", "use": "every in-motion lower-third caption" }
+  },
+  "caption_style": {
+    "treatment": "plain text, no card/pill background (matches the highest-engagement reference reel)",
+    "text_color": "#FAF8F5",
+    "shadow_color": "#1F2E26",
+    "max_lines": 2,
+    "position": "lower_third"
+  },
+  "pacing": {
+    "image_beat_seconds": 3.2,
+    "video_beat_seconds": 4.5,
+    "kenburns_zoom": "slow push-in, 1.0 to 1.08 over the beat",
+    "transition": "hard cut, no whip-pans"
+  },
+  "canvas": { "width": 1080, "height": 1920, "fps": 30 }
+}

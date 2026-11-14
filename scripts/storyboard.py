@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BRAND_TOKENS = ROOT.parent / "AI video editor" / "references" / "brand-tokens.json"
+BRAND_TOKENS = ROOT / "references" / "brand-tokens.json"  # local copy, see ideate.py's note
 
 
 def _slide_html(beat, asset, tokens):

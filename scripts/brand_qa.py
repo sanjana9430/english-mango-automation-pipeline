@@ -5,6 +5,7 @@ Anything it can't confidently verify should fail closed (QAResult.passed = False
 not pass by default — a missed check here is a wrong post on a real account.
 """
 import json
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -17,6 +18,13 @@ BANNED_CLAIM_WORDS = [
 MAX_CAPTION_LEN = 2200  # Instagram's hard limit
 MAX_HOOK_WORDS = 12
 MAX_ON_SCREEN_LINES = 2
+
+# reel_render_engine.py's generate_music_bed() is an explicitly-flagged
+# placeholder (synthesized sine-wave pad, zero licensing risk, "swap for a
+# real licensed track before this ships"). Fail every reel closed until
+# that's actually true — set ALLOW_PLACEHOLDER_MUSIC=true only as a conscious,
+# temporary call, not a default.
+ALLOW_PLACEHOLDER_MUSIC = os.environ.get("ALLOW_PLACEHOLDER_MUSIC", "false").lower() == "true"
 
 
 @dataclass
@@ -56,6 +64,12 @@ def check(format_key, format_spec, selected_assets, draft):
             result.fail(
                 f"reel has {beat_count} beats, expected "
                 f"{format_spec['min_beats']}-{format_spec['max_beats']}"
+            )
+        if not ALLOW_PLACEHOLDER_MUSIC:
+            result.fail(
+                "reel render still uses reel_render_engine.py's synthesized placeholder "
+                "music bed - swap for a licensed track, or set ALLOW_PLACEHOLDER_MUSIC=true "
+                "once that's a deliberate, reviewed call"
             )
 
     # Every beat's asset_role must resolve to a real, selected asset

@@ -23,6 +23,7 @@ import ideate
 import brand_qa
 import storyboard
 import publish_instagram
+import render_reel
 
 
 def run(target_date, dry_run=False, force_publish=False):
@@ -61,11 +62,9 @@ def run(target_date, dry_run=False, force_publish=False):
     if format_spec["publish_type"] == "carousel":
         response = publish_instagram.publish_carousel(draft, selected)
     elif format_spec["publish_type"] == "reel":
-        raise NotImplementedError(
-            "Reel publishing needs a rendered final video (see ../AI video editor/scripts/"
-            "build_rough_cut.py) plus a public video_url — wire that path in before relying "
-            "on this for reel days."
-        )
+        video_path = render_reel.build(target_date, draft, selected)
+        video_url = render_reel.publish_to_static_site(video_path)
+        response = publish_instagram.publish_reel(draft, video_url)
     else:
         raise ValueError(f"unknown publish_type: {format_spec['publish_type']!r}")
 

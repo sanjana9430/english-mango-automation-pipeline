@@ -79,12 +79,15 @@ def publish_carousel(draft, selected_assets):
     return _post(f"{ig_user_id}/media_publish", creation_id=carousel_container["id"])
 
 
-def publish_reel(draft, selected_assets, final_video_path_relative):
+def publish_reel(draft, video_url):
+    """video_url is the already-public URL returned by
+    render_reel.publish_to_static_site() — no relative-path join needed here,
+    unlike publish_carousel's still-curated images."""
     ig_user_id = os.environ["META_IG_USER_ID"]
     container = _post(
         f"{ig_user_id}/media",
         media_type="REELS",
-        video_url=_asset_url(final_video_path_relative),
+        video_url=video_url,
         caption=draft["caption"],
     )
     _wait_for_container(container["id"], timeout_s=900)

@@ -1,10 +1,15 @@
 # Deploy with: Render dashboard -> New -> Blueprint -> point at this repo.
-# Set ANTHROPIC_API_KEY, META_ACCESS_TOKEN, META_IG_USER_ID as secrets in the
-# Render dashboard on the cron service — do not put real values in this file.
+# Set ANTHROPIC_API_KEY, META_ACCESS_TOKEN, META_IG_USER_ID, GITHUB_PUSH_TOKEN
+# as secrets in the Render dashboard on the cron service — do not put real
+# values in this file.
 #
 # Deploy order matters once: the static site must exist first so you can read
 # its onrender.com URL and paste it into PUBLIC_ASSET_BASE_URL on the cron
 # service below. After that, both services redeploy independently.
+#
+# The cron service uses the Dockerfile (not Render's python buildpack) because
+# reel days need ffmpeg (video rendering) and git (pushing the rendered reel
+# to the static site below) — neither is in the plain python runtime image.
 services:
   - type: web
     name: english-mango-assets
@@ -14,10 +19,9 @@ services:
 
   - type: cron
     name: english-mango-daily-post
-    runtime: python
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     schedule: "0 9 * * *"   # 09:00 UTC daily; adjust to your actual posting time
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python scripts/orchestrate.py"
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false
@@ -29,3 +33,7 @@ services:
         value: v19.0
       - key: PUBLIC_ASSET_BASE_URL
         value: https://english-mango-assets.onrender.com   # update if Render assigns a different subdomain
+      - key: GITHUB_PUSH_TOKEN
+        sync: false
+      - key: ALLOW_PLACEHOLDER_MUSIC
+        value: "false"   # every reel fails QA and queues for review until this is a deliberate "true"

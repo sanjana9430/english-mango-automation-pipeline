@@ -7,7 +7,10 @@ from pathlib import Path
 from anthropic import Anthropic
 
 ROOT = Path(__file__).resolve().parents[1]
-BRAND_SHEET = ROOT.parent / "AI video editor" / "references" / "brand-sheet.md"
+# A local copy, not a reach across to ../AI video editor/ — that sibling folder
+# only exists on the working machine, never in the deployed Render container
+# (only this repo gets cloned there). Re-sync if the source brand sheet changes.
+BRAND_SHEET = ROOT / "references" / "brand-sheet.md"
 
 SYSTEM_PROMPT = """You write Instagram copy for English Mango, a luxury villa stay \
 in Haridwar. Follow the attached brand sheet exactly: tone, caption structure, \
