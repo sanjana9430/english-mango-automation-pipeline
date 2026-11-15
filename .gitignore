@@ -8,3 +8,8 @@ published_log/*
 !review_queue/.gitkeep
 !published_log/.gitkeep
 .DS_Store
+remotion/node_modules/
+remotion/public/assets/*
+remotion/public/fonts/*
+!remotion/public/assets/.gitkeep
+!remotion/public/fonts/.gitkeep

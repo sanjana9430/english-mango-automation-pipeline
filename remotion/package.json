@@ -1,0 +1,24 @@
+{
+  "name": "english-mango-reel-renderer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "remotion": "4.0.543",
+    "@remotion/bundler": "4.0.543",
+    "@remotion/renderer": "4.0.543",
+    "@remotion/transitions": "4.0.543",
+    "@remotion/fonts": "4.0.543",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@remotion/cli": "4.0.543",
+    "@types/react": "18.3.12",
+    "typescript": "5.6.3"
+  }
+}

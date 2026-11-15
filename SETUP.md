@@ -110,15 +110,23 @@ back to git after every run (via `scripts/git_sync.py`), the same mechanism
 section 5 below uses for the reel video. This is why `GITHUB_PUSH_TOKEN` is
 needed on **every** run now, not just reel days.
 
-## 5. Reel video hosting + the placeholder music bed
+## 5. Reel video rendering (Remotion) + hosting + the placeholder music bed
 
-Cinematic Reel days render an actual video (`scripts/reel_render_engine.py`,
-the automated counterpart to `../AI video editor/scripts/build_rough_cut.py`)
-and need their own public URL, same reasoning as step 3. Unlike the curated
-images, the reel changes every time it runs — so rather than growing the git
-history with a new ~20MB file every reel day, `render_reel.py` overwrites a
-single file, `public_assets/reel-latest.mp4`, commits, and pushes that one
-change before publishing. The public URL
+Cinematic Reel days render an actual video via **Remotion** (`remotion/`,
+invoked by `scripts/remotion_render_engine.py` — as of 2026-11-16, replacing
+the earlier pure-ffmpeg engine for genuinely better transitions/animated
+typography; see the migration plan at
+`~/.claude/plans/snoopy-singing-squirrel.md` for the full reasoning). The old
+engine, `scripts/reel_render_engine.py`, is kept untouched as a one-line
+rollback — if Remotion misbehaves in production, change `render_reel.py`'s
+`import remotion_render_engine as reel_render_engine` back to plain
+`import reel_render_engine`.
+
+The rendered video needs its own public URL, same reasoning as step 3. Unlike
+the curated images, the reel changes every time it runs — so rather than
+growing the git history with a new file every reel day, `render_reel.py`
+overwrites a single file, `public_assets/reel-latest.mp4`, commits, and
+pushes that one change before publishing. The public URL
 (`https://english-mango-assets.onrender.com/reel-latest.mp4`) never changes;
 only its contents do.
 
@@ -128,16 +136,42 @@ is a **fine-grained GitHub PAT**, scoped to only the
 set in `.env` / the Render dashboard. Generate it at
 https://github.com/settings/personal-access-tokens/new.
 
-Separately: `reel_render_engine.py`'s audio track is a synthesized placeholder
-(the original `build_rough_cut.py`'s own docstring flagged this — "swap for a
-real licensed track before this ships"). That's still true here. Rather than
-silently ship synthetic audio on every reel, `brand_qa.py` fails every reel
-closed until you set `ALLOW_PLACEHOLDER_MUSIC=true` — a deliberate choice, not
-a default. Do that once you've either accepted the placeholder for now, or
+Separately: the music bed is still a synthesized placeholder (unchanged by
+the Remotion migration — audio generation/muxing stayed in Python/ffmpeg on
+purpose, see the migration plan's §3). `brand_qa.py` fails every reel closed
+until you set `ALLOW_PLACEHOLDER_MUSIC=true` — a deliberate choice, not a
+default. Do that once you've either accepted the placeholder for now, or
 wired in a real track (Instagram's own in-app audio library is the easiest
 licensed option).
 
-## 6. Deploy
+## 6. Local Remotion testing
+
+```bash
+nvm install 22 && nvm use 22
+cd automation-pipeline/remotion
+npm install
+```
+
+Fast iteration on a beat component's look: `npx remotion studio --props=../drafts/_remotion_props/<file>.json`
+(generate a real props file first by calling `remotion_render_engine._stage_assets()`
++ `_write_props()` directly, or just run the full pipeline once and reuse what
+it wrote). Full-pipeline smoke test without touching git/QA/publish:
+`python3 scripts/dev_verify_remotion.py drafts/<some-existing-draft>.json`.
+
+**Known local-only issue, not a deployment problem**: on a Mac older than
+macOS 15 (Sequoia), Remotion's downloaded Chrome Headless Shell *and* its
+bundled ffmpeg binary both fail (`SIGABRT` / `EPIPE` respectively) — they're
+built against newer OS APIs than an older Mac has. The deployed Linux Docker
+container uses its own Linux builds of both and never hits this. Confirmed
+locally on this project: pointing Chrome at a full, already-installed Chrome
+browser via `REMOTION_BROWSER_EXECUTABLE=/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome`
+fixes the Chrome-launch half (works fine for `remotion studio`, which never
+touches the bundled-ffmpeg path) but doesn't fix the ffmpeg-encode half
+(`renderMedia()` has no custom-ffmpeg-path option in Remotion v4) — so on an
+old Mac, `remotion studio` is the real verification tool, and a full
+server-side render has to wait for an actual deploy or a newer/Linux machine.
+
+## 7. Deploy
 
 ```bash
 cd automation-pipeline
@@ -146,15 +180,29 @@ cp .env.example .env   # fill in ANTHROPIC_API_KEY, META_ACCESS_TOKEN, META_IG_U
 python scripts/orchestrate.py --dry-run   # runs the full pipeline, skips the actual publish
 ```
 
-Once a few dry runs look right, deploy `render.yaml` as a Render Blueprint. It
-defines two services — deploy the static site (`english-mango-assets`) first,
-confirm its `onrender.com` URL matches `PUBLIC_ASSET_BASE_URL` in the cron
-service's config (update it if Render assigned a different subdomain), then
-deploy the cron service (it builds from `Dockerfile`, which installs `ffmpeg`
-and `git` — the plain Render python runtime has neither) with
-`ANTHROPIC_API_KEY`, `META_ACCESS_TOKEN`, `META_IG_USER_ID`, and
-`GITHUB_PUSH_TOKEN` set as secrets in Render's dashboard —
+Note: `--dry-run` returns before the render step is ever reached (checked
+before the carousel/reel branch in `orchestrate.py`'s `run()`) — it verifies
+calendar/asset-selection/ideation/QA, not rendering. Use
+`scripts/dev_verify_remotion.py` (section 6) to actually exercise a render.
+
+Once that looks right, deploy `render.yaml` as a Render Blueprint. It defines
+two services — deploy the static site (`english-mango-assets`) first, confirm
+its `onrender.com` URL matches `PUBLIC_ASSET_BASE_URL` in the cron service's
+config (update it if Render assigned a different subdomain), then deploy the
+cron service with `ANTHROPIC_API_KEY`, `META_ACCESS_TOKEN`, `META_IG_USER_ID`,
+and `GITHUB_PUSH_TOKEN` set as secrets in Render's dashboard —
 **never commit `.env`**.
+
+The cron service's `Dockerfile` changed with the Remotion migration: it now
+builds from `node:22-bookworm-slim` (not `python:3.11-slim`) with Python
+layered on top, installs Chrome Headless Shell's shared libraries, and runs
+`npx remotion browser ensure` at build time to bake Chrome in. This adds real
+build-time minutes over the old single `apt-get install ffmpeg git` — if
+Render's build step has a timeout on whatever plan this service is on, check
+that *before* the first real deploy, separately from the runtime-RAM
+question below. Headless Chrome rendering is also meaningfully heavier than
+pure ffmpeg was — unknown what Render plan tier this service needs; treat any
+crash/OOM-kill in the cron logs after deploy as the signal to size up.
 
 ## What happens when something looks wrong
 

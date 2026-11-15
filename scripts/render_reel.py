@@ -1,7 +1,13 @@
-"""Renders today's reel via reel_render_engine.py (this repo's self-contained
-counterpart to ../AI video editor/scripts/build_rough_cut.py) and publishes
-the result to the same Render static site that hosts the curated images, at a
-stable filename (reel-latest.mp4) so the public URL never changes.
+"""Renders today's reel via remotion_render_engine.py (Remotion — real
+animated transitions/typography, replacing the old pure-ffmpeg compositing
+as of 2026-11-16, see /Users/sanjana/.claude/plans/snoopy-singing-squirrel.md)
+and publishes the result to the same Render static site that hosts the
+curated images, at a stable filename (reel-latest.mp4) so the public URL
+never changes.
+
+Rollback: reel_render_engine.py (the ffmpeg engine) is kept untouched. If
+Remotion misbehaves in production, change the import below back to it — both
+modules expose the same load_brand()/RAW_DIR/build_from_draft() contract.
 
 Requires GITHUB_PUSH_TOKEN (see SETUP.md "Reel video hosting") — a fine-grained
 PAT scoped to just this repo with Contents: write, used to push the updated
@@ -16,7 +22,7 @@ from pathlib import Path
 import requests
 
 import git_sync
-import reel_render_engine
+import remotion_render_engine as reel_render_engine
 
 PIPELINE_ROOT = Path(__file__).resolve().parents[1]
 STATIC_SITE_FILENAME = "reel-latest.mp4"
