@@ -8,6 +8,15 @@ this repo's own public_assets/ and references/ — so a Render deploy (which
 only clones this repo, never the sibling AI video editor/ folder) has
 everything it needs. If build_rough_cut.py's visual treatment (fonts, drawtext
 styling, pacing, filter graphs) changes, mirror the change here too.
+
+2026-11-16 pass: fixed inaudible music (loudnorm instead of a blind low
+multiplier), added a permanent bottom-gradient scrim so on-screen text always
+has contrast regardless of what's actually in the shot, anchored text from
+the bottom of its block instead of a fixed top-y (so 2- vs 3-line captions
+don't crowd or float inconsistently), added crossfade transitions between
+beats (was a hard concat cut), and always append a fixed CTA/logo end card -
+previously no beat ever did this, since Claude's generated beats only ever
+reference real assets.
 """
 import json
 import re
@@ -20,7 +29,12 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSET_DIR = ROOT / "public_assets"
 REF_DIR = ROOT / "references"
 RAW_DIR = ROOT / "drafts"  # reuses the existing gitignored drafts/ dir for render intermediates
+GRADIENT_PATH = REF_DIR / "gradient_scrim.png"
 FFMPEG = shutil.which("ffmpeg") or str(Path.home() / "bin" / "ffmpeg")
+
+TEXT_LINE_HEIGHT = 70  # fontsize 58 + line_spacing 12, kept in sync with render_beat below
+TEXT_BOTTOM_MARGIN = 200
+XFADE_DURATION = 0.4
 
 
 def load_brand():
@@ -74,6 +88,15 @@ def wrap_caption(text, max_chars=28):
     return "\n".join(lines)
 
 
+def _text_top_y(canvas_height, caption_text):
+    """Anchors the BOTTOM of the text block at a fixed distance from the
+    frame's bottom edge, growing upward for longer captions - so a 3-line
+    caption doesn't start higher/lower inconsistently relative to a 2-line
+    one, and nothing crowds the very edge of the frame."""
+    num_lines = max(len([l for l in wrap_caption(caption_text).split("\n") if l.strip()]), 1)
+    return canvas_height - TEXT_BOTTOM_MARGIN - num_lines * TEXT_LINE_HEIGHT
+
+
 def render_beat(beat, brand, tmp, out_path):
     canvas = brand["canvas"]
     w, h, fps = canvas["width"], canvas["height"], canvas["fps"]
@@ -103,20 +126,26 @@ def render_beat(beat, brand, tmp, out_path):
         shadow = brand["caption_style"]["shadow_color"].replace("#", "0x")
         font = tmp / "Inter-SemiBold.ttf"
         pre_w, pre_h = int(w * 1.5), int(h * 1.5)
-        vf = (
+        text_y = _text_top_y(h, beat["caption"])
+
+        base_vf = (
             f"scale={pre_w}:{pre_h}:force_original_aspect_ratio=increase:flags=lanczos,crop={pre_w}:{pre_h},"
             f"zoompan=z='min(zoom+0.0008,1.08)':d={frames}:s={w}x{h}:fps={fps}:"
             f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)',"
             f"unsharp=5:5:0.5:5:5:0.0"
         )
+        filter_complex = f"[0:v]{base_vf}[base];[base][1:v]overlay=0:0[scrimmed]"
+        final_label = "scrimmed"
         if has_caption:
-            vf += (
-                f",drawtext=fontfile='{font}':textfile='{caption_file}':fontcolor={fg}:"
+            filter_complex += (
+                f";[scrimmed]drawtext=fontfile='{font}':textfile='{caption_file}':fontcolor={fg}:"
                 f"fontsize=58:line_spacing=12:shadowcolor={shadow}@0.85:shadowx=2:shadowy=2:"
-                f"x=80:y=h-380:text_align=left"
+                f"x=80:y={text_y}:text_align=left[out]"
             )
-        cmd = [FFMPEG, "-y", "-loop", "1", "-i", str(src), "-t", str(dur),
-               "-vf", vf, "-r", str(fps), "-pix_fmt", "yuv420p",
+            final_label = "out"
+        cmd = [FFMPEG, "-y", "-loop", "1", "-i", str(src), "-loop", "1", "-i", str(GRADIENT_PATH),
+               "-filter_complex", filter_complex, "-map", f"[{final_label}]", "-t", str(dur),
+               "-r", str(fps), "-pix_fmt", "yuv420p",
                "-c:v", "libx264", "-preset", "slow", "-crf", "16", str(out_path)]
 
     else:  # video
@@ -124,26 +153,32 @@ def render_beat(beat, brand, tmp, out_path):
         fg = brand["caption_style"]["text_color"].replace("#", "0x")
         shadow = brand["caption_style"]["shadow_color"].replace("#", "0x")
         font = tmp / "Inter-SemiBold.ttf"
-        vf = f"scale={w}:{h}:force_original_aspect_ratio=increase:flags=lanczos,crop={w}:{h}"
+        text_y = _text_top_y(h, beat["caption"])
+
+        base_vf = f"scale={w}:{h}:force_original_aspect_ratio=increase:flags=lanczos,crop={w}:{h}"
+        filter_complex = f"[0:v]{base_vf}[base];[base][1:v]overlay=0:0[scrimmed]"
+        final_label = "scrimmed"
         if has_caption:
-            vf += (
-                f",drawtext=fontfile='{font}':textfile='{caption_file}':fontcolor={fg}:"
+            filter_complex += (
+                f";[scrimmed]drawtext=fontfile='{font}':textfile='{caption_file}':fontcolor={fg}:"
                 f"fontsize=58:line_spacing=12:shadowcolor={shadow}@0.85:shadowx=2:shadowy=2:"
-                f"x=80:y=h-380:text_align=left"
+                f"x=80:y={text_y}:text_align=left[out]"
             )
-        cmd = [FFMPEG, "-y", "-ss", "0", "-i", str(src), "-t", str(dur),
-               "-vf", vf, "-an", "-r", str(fps), "-pix_fmt", "yuv420p",
+            final_label = "out"
+        cmd = [FFMPEG, "-y", "-ss", "0", "-i", str(src), "-loop", "1", "-i", str(GRADIENT_PATH),
+               "-filter_complex", filter_complex, "-map", f"[{final_label}]", "-an", "-t", str(dur),
+               "-r", str(fps), "-pix_fmt", "yuv420p",
                "-c:v", "libx264", "-preset", "slow", "-crf", "16", str(out_path)]
 
     subprocess.run(cmd, check=True, capture_output=True)
 
 
 def generate_music_bed(duration, out_path):
-    """Original ambient pad, synthesized from sine tones - zero licensing risk,
-    a placeholder bed so the render isn't silent. STILL A PLACEHOLDER — swap
-    for a real licensed track (Instagram's own audio library works fine)
-    before this ships. See brand_qa.py's reel-specific check, which fails
-    closed on every reel until that swap happens."""
+    """Still a synthesized placeholder (zero licensing risk) - swap for a real
+    licensed track before this ships for real. loudnorm targets -16 LUFS
+    integrated so it's actually audible; the previous flat volume=0.35
+    multiplier on an already-quiet synth measured -38dB mean, effectively
+    silent on a phone speaker."""
     notes = [73.42, 110.0, 185.0, 220.0, 293.66]  # D2 A2 F#3 A3 D4 - warm open chord
     weights = [1.0, 0.8, 0.5, 0.4, 0.3]
     inputs = []
@@ -155,7 +190,8 @@ def generate_music_bed(duration, out_path):
         f"{mix}amix=inputs={len(notes)}:weights='{weight_str}':normalize=0,"
         f"highpass=f=50,lowpass=f=2500,tremolo=f=0.15:d=0.3,"
         f"aecho=0.6:0.5:500:0.3,"
-        f"afade=t=in:d=2,afade=t=out:st={max(duration - 3, 0)}:d=3,volume=0.35"
+        f"afade=t=in:d=2,afade=t=out:st={max(duration - 3, 0)}:d=3,"
+        f"loudnorm=I=-16:LRA=11:TP=-1.5"
     )
     cmd = [FFMPEG, "-y", *inputs, "-filter_complex", filt, "-c:a", "aac", "-b:a", "160k", str(out_path)]
     subprocess.run(cmd, check=True, capture_output=True)
@@ -168,19 +204,41 @@ def render(timeline, brand, output_path):
     for name in ["Inter-Regular.ttf", "Inter-SemiBold.ttf", "PlayfairDisplay-Regular.ttf", "PlayfairDisplay-SemiBold.ttf"]:
         shutil.copy(REF_DIR / "fonts" / name, tmp / name)
 
-    beat_files = []
+    beat_files, durations = [], []
     for beat in timeline["beats"]:
         out_path = beats_dir / f"beat_{beat['id']:02d}_{beat['role'].lower().replace(' ', '-').replace('/', '')}.mp4"
         render_beat(beat, brand, tmp, out_path)
         beat_files.append(out_path)
+        durations.append(beat["duration"])
 
-    list_path = tmp / "concat_list.txt"
-    list_path.write_text("\n".join(f"file '{p}'" for p in beat_files))
+    fps = brand["canvas"]["fps"]
     silent_path = tmp / "concat_silent.mp4"
-    subprocess.run([FFMPEG, "-y", "-f", "concat", "-safe", "0", "-i", str(list_path),
-                    "-c", "copy", str(silent_path)], check=True, capture_output=True)
 
-    total_duration = sum(b["duration"] for b in timeline["beats"])
+    if len(beat_files) == 1:
+        shutil.copy(beat_files[0], silent_path)
+        total_duration = durations[0]
+    else:
+        inputs = []
+        for p in beat_files:
+            inputs += ["-i", str(p)]
+        filter_parts = []
+        running_label, running_length = "0:v", durations[0]
+        for i in range(1, len(beat_files)):
+            offset = max(running_length - XFADE_DURATION, 0)
+            out_label = f"v{i}"
+            filter_parts.append(
+                f"[{running_label}][{i}:v]xfade=transition=fade:duration={XFADE_DURATION}:offset={offset:.3f}[{out_label}]"
+            )
+            running_length = running_length + durations[i] - XFADE_DURATION
+            running_label = out_label
+        subprocess.run(
+            [FFMPEG, "-y", *inputs, "-filter_complex", ";".join(filter_parts),
+             "-map", f"[{running_label}]", "-r", str(fps), "-pix_fmt", "yuv420p",
+             "-c:v", "libx264", "-preset", "slow", "-crf", "16", str(silent_path)],
+            check=True, capture_output=True,
+        )
+        total_duration = running_length
+
     music_path = tmp / "music_bed.m4a"
     generate_music_bed(total_duration, music_path)
 
@@ -203,6 +261,16 @@ def build_from_draft(draft, selected_assets, brand, output_path):
             assets=[Path(asset["path"]).name],
             caption=beat.get("on_screen_text", ""),
         ))
+    # Always present, never left to Claude to decide — a fixed brand element,
+    # not a creative content choice. The manual build_rough_cut.py always had
+    # one of these; the automated path never did until this fix.
+    manifest.append(dict(
+        id=len(manifest) + 1,
+        role="CTA / End Card",
+        type="title",
+        assets=[],
+        caption="English Mango\nenglishmango.com",
+    ))
     timeline_path = RAW_DIR / f"timeline-{output_path.stem}.json"
     timeline = sequence(brand, manifest, timeline_path, project_name=f"English Mango - {output_path.stem}")
     return render(timeline, brand, output_path)
