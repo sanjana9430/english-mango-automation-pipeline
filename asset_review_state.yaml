@@ -11,6 +11,10 @@
 # it'll show up in the next `review_new_assets.py generate` run.
 
 reviewed:
+  DJI_0149.JPG: rejected
+  DJI_0156.MP4: approved
+  DJI_0161.JPG: approved
+  DJI_0162.JPG: rejected
   WhatsApp Image 2026-11-14 at 11.44.34 AM (1).jpeg: approved
   WhatsApp Image 2026-11-14 at 11.44.35 AM.jpeg: approved
   best pool image.jpeg: approved

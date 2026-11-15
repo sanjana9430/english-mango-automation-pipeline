@@ -106,6 +106,20 @@ assets:
     formats: [luxury_carousel, cinematic_reel]
     default_caption: ""
 
+  - id: 14
+    role: "Aerial Front Entrance (Night)"
+    type: video
+    path: "public_assets/DJI_0156.mp4"
+    formats: [cinematic_reel]
+    default_caption: ""
+
+  - id: 15
+    role: "Aerial Exterior Night View"
+    type: image
+    path: "public_assets/DJI_0161.JPG"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
 # Explicitly excluded, carried over from build_rough_cut.py so this pipeline
 # doesn't re-select something already ruled out there for a documented reason.
 excluded:
