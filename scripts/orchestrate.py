@@ -24,6 +24,7 @@ import brand_qa
 import storyboard
 import publish_instagram
 import render_reel
+import git_sync
 
 
 def run(target_date, dry_run=False, force_publish=False):
@@ -37,6 +38,16 @@ def run(target_date, dry_run=False, force_publish=False):
         format_key,
         limit=format_spec.get("max_beats") or format_spec.get("max_slides"),
     )
+
+    # Record usage (and push, so it survives to tomorrow's run) right after
+    # selection, before QA — a QA-failed day still shouldn't keep re-picking
+    # the same stale assets forever. Skipped on --dry-run: no side effects.
+    asset_lib.mark_used(selected, target_date)
+    if not dry_run:
+        git_sync.push_file(
+            asset_lib.ROTATION_STATE_PATH.relative_to(asset_lib.ROOT),
+            f"rotation: mark {len(selected)} asset(s) used for {target_date} ({format_key})",
+        )
 
     draft = ideate.generate(format_key, format_spec, selected)
     ideate.save_draft(target_date, draft)

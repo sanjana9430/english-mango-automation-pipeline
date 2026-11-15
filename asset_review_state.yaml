@@ -11,6 +11,11 @@
 # it'll show up in the next `review_new_assets.py generate` run.
 
 reviewed:
+  WhatsApp Image 2026-11-14 at 11.44.34 AM (1).jpeg: approved
+  WhatsApp Image 2026-11-14 at 11.44.35 AM.jpeg: approved
+  best pool image.jpeg: approved
+  theatre-yoga-session_1.jpg: rejected
+  tv4.JPG: approved
   # Already in asset_manifest.yaml (ids 1-9)
   villa-lawn-green.jpg: approved
   villa-courtyard-green.jpg: approved

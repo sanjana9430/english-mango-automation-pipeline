@@ -78,6 +78,34 @@ assets:
     formats: [cinematic_reel]
     default_caption: "Your private palace, from above"
 
+  - id: 10
+    role: "Serene Temple"
+    type: image
+    path: "public_assets/WhatsApp Image 2026-11-14 at 11.44.34 AM (1).jpeg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
+  - id: 11
+    role: "Home Theatre"
+    type: image
+    path: "public_assets/WhatsApp Image 2026-11-14 at 11.44.35 AM.jpeg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
+  - id: 12
+    role: "Rooftop Pool"
+    type: image
+    path: "public_assets/best pool image.jpeg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
+  - id: 13
+    role: "Luxury Room"
+    type: image
+    path: "public_assets/tv4.JPG"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
 # Explicitly excluded, carried over from build_rough_cut.py so this pipeline
 # doesn't re-select something already ruled out there for a documented reason.
 excluded:

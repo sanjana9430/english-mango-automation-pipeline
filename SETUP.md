@@ -84,21 +84,40 @@ static site. When you approve a new asset in `../AI video editor/Asset/`, copy
 it into `public_assets/` too and add the matching line to `asset_manifest.yaml`
 — same one-line-per-asset discipline as step 2 above.
 
-## 4. Reel video hosting + the placeholder music bed
+## 4. Asset rotation
+
+Once eligible assets exceed a format's cap (`max_slides`/`max_beats` in
+`content_calendar.yaml`), `assets.select_for_format()` doesn't just take the
+first N in file order — it prefers whichever assets haven't been used
+recently, so newly-approved assets actually enter rotation instead of being
+silently starved out forever by file order. (This was a real bug, not a
+hypothetical: the day `asset_review_state.yaml` added 4 new assets, all 4
+would have been silently dropped from every reel under the old file-order
+logic — caught and fixed the same day.)
+
+That needs state (`asset_rotation_state.json`, tracking each asset's
+last-used date) to persist across days — but Render cron containers don't
+keep local disk between runs, so `orchestrate.py` pushes the updated file
+back to git after every run (via `scripts/git_sync.py`), the same mechanism
+section 5 below uses for the reel video. This is why `GITHUB_PUSH_TOKEN` is
+needed on **every** run now, not just reel days.
+
+## 5. Reel video hosting + the placeholder music bed
 
 Cinematic Reel days render an actual video (`scripts/reel_render_engine.py`,
 the automated counterpart to `../AI video editor/scripts/build_rough_cut.py`)
-and need their own public URL, same reasoning as step 3. Unlike the 8 fixed
-curated images, the reel changes every time it runs — so rather than growing
-the git history with a new ~20MB file every reel day, `render_reel.py`
-overwrites a single file, `public_assets/reel-latest.mp4`, commits, and pushes
-that one change before publishing. The public URL
+and need their own public URL, same reasoning as step 3. Unlike the curated
+images, the reel changes every time it runs — so rather than growing the git
+history with a new ~20MB file every reel day, `render_reel.py` overwrites a
+single file, `public_assets/reel-latest.mp4`, commits, and pushes that one
+change before publishing. The public URL
 (`https://english-mango-assets.onrender.com/reel-latest.mp4`) never changes;
 only its contents do.
 
-This needs a **fine-grained GitHub PAT**, scoped to only the
+`GITHUB_PUSH_TOKEN` (see section 4 — needed on every run, not just this one)
+is a **fine-grained GitHub PAT**, scoped to only the
 `english-mango-automation-pipeline` repo with **Contents: write** permission,
-set as `GITHUB_PUSH_TOKEN` in `.env` / the Render dashboard. Generate it at
+set in `.env` / the Render dashboard. Generate it at
 https://github.com/settings/personal-access-tokens/new.
 
 Separately: `reel_render_engine.py`'s audio track is a synthesized placeholder
@@ -110,7 +129,7 @@ a default. Do that once you've either accepted the placeholder for now, or
 wired in a real track (Instagram's own in-app audio library is the easiest
 licensed option).
 
-## 5. Deploy
+## 6. Deploy
 
 ```bash
 cd automation-pipeline
