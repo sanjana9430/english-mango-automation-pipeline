@@ -4,6 +4,14 @@ This runs as a daily scheduled job (Render cron), **not** inside a live Claude C
 session — publishing to Instagram is an irreversible public action, so it has to be
 your own deployed service with its own stored credentials.
 
+Note: the Render static site was originally created by API with a plain repo
+URL (no git repo existed yet at that point), which skips the GitHub App's
+normal webhook installation — so auto-deploy-on-push silently didn't fire
+until the Render GitHub App was given access to this repo under
+https://github.com/settings/installations. Fixed 2026-11-15. If a future
+push doesn't show up on Render within a minute or two, check that setting
+first before assuming something else broke.
+
 Three things only you can do (they all require logging into your own accounts):
 
 ## 1. Meta Developer App + Instagram access token
