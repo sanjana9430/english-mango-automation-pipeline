@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-11-15T18:39:29.140Z",
+        "reason": "Inter is the project's documented brand body font, pulled directly from englishmango.com's own site CSS (see references/brand-sheet.md section 1) — not an arbitrary/default choice."
+      }
+    ]
+  }
+}

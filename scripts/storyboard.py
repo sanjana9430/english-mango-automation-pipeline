@@ -14,10 +14,14 @@ BRAND_TOKENS = ROOT / "references" / "brand-tokens.json"  # local copy, see idea
 def _slide_html(beat, asset, tokens):
     colors = tokens["colors"]
     caption = beat.get("on_screen_text", "").replace("\n", "<br>")
+    # Dark-on-light here, not the real render's light-on-dark-footage
+    # convention from brand-tokens.json's caption_style — that assumes actual
+    # photo/video behind the text; this card's background is a flat beige
+    # div, so cream-on-beige was failing WCAG contrast in this preview.
     return f"""
     <div class="slide">
       <div class="asset-label">{asset['role']} &middot; {asset['path']}</div>
-      <div class="caption" style="color:{colors['background']}; text-shadow:0 1px 6px {colors['foreground']};">
+      <div class="caption" style="color:{colors['foreground']};">
         {caption}
       </div>
     </div>
@@ -40,19 +44,20 @@ def build(date, format_key, format_spec, draft, selected_assets):
 <style>
   body {{ background:{colors['background']}; color:{colors['foreground']};
          font-family: Inter, sans-serif; padding: 24px; }}
-  h1 {{ font-family: "Playfair Display", serif; }}
-  .hook {{ font-size: 1.4em; margin-bottom: 1em; }}
+  h1 {{ font-family: "Playfair Display", serif; font-size: 2.3em; }}
+  h2 {{ font-family: "Playfair Display", serif; font-size: 1.3em; margin-top: 1.5em; }}
+  .hook {{ font-size: 1.7em; margin-bottom: 1em; }}
   .slide {{ border: 1px solid {colors['muted']}; border-radius: 8px; padding: 16px;
             margin-bottom: 12px; background: {colors['muted']}; }}
-  .asset-label {{ font-size: 0.8em; opacity: 0.7; }}
-  .caption {{ font-size: 1.1em; margin-top: 8px; }}
-  .meta {{ font-size: 0.85em; opacity: 0.7; }}
+  .asset-label {{ font-size: 0.78em; opacity: 0.7; }}
+  .caption {{ font-size: 1em; margin-top: 8px; }}
+  .meta {{ font-size: 0.78em; opacity: 0.7; }}
 </style></head>
 <body>
   <h1>{format_spec['label']} &mdash; {date}</h1>
   <div class="hook">{draft.get('hook', '')}</div>
   {''.join(slides)}
-  <h3>Caption</h3>
+  <h2>Caption</h2>
   <pre style="white-space: pre-wrap; font-family: Inter, sans-serif;">{draft.get('caption', '')}</pre>
   <p class="meta">Publish type: {format_spec['publish_type']}</p>
 </body></html>"""
