@@ -1,0 +1,74 @@
+# Tracks every filename in ../AI video editor/Asset/ that has already been
+# decided on by scripts/review_new_assets.py, so the review gallery only ever
+# shows genuinely new, undecided files. Separate from asset_manifest.yaml's
+# own `excluded:` list, which stays as the original human-readable record of
+# *why* each pre-2026-11-15 file was rejected — this file is the machine-
+# checked ledger going forward. Matched by filename only (not full path), so
+# it doesn't matter which subfolder of Asset/ a file lives in.
+#
+# Do not hand-edit the "approved" entries below unless you're also fixing
+# asset_manifest.yaml to match. To un-reject a file, just delete its line —
+# it'll show up in the next `review_new_assets.py generate` run.
+
+reviewed:
+  # Already in asset_manifest.yaml (ids 1-9)
+  villa-lawn-green.jpg: approved
+  villa-courtyard-green.jpg: approved
+  pool-night.jpg: approved
+  pool-night-loop.mp4: approved
+  tv.JPG: approved
+  temple-festive-entrance.jpg: approved
+  theatre-yoga-session.jpg: approved
+  WhatsApp Image 2026-11-14 at 11.44.34 AM.jpeg: approved
+  DJI_0147.mp4: approved
+
+  # From asset_manifest.yaml's excluded: list (pre-2026-11-15), matched to
+  # actual files found in Asset/ on 2026-11-15
+  pool-night-loop-poster.jpg: rejected
+  temple-festive-entrance_1.jpg: rejected
+  theatre.JPG: rejected
+  theatre 2.JPG: rejected
+  theatre experience.mp4: rejected
+  well lit pool.mp4: rejected
+  tv2.JPG: rejected
+  tv3.JPG: rejected
+  tv5.JPG: rejected
+  tv6.JPG: rejected
+  tv7.JPG: rejected
+  tv8.JPG: rejected
+  tv9.JPG: rejected
+  tv10.JPG: rejected
+  tv11.JPG: rejected
+  WhatsApp Image 2026-02-05 at 10.49.33 (1).jpeg: rejected
+  WhatsApp Image 2026-02-05 at 10.49.33.jpeg: rejected
+  WhatsApp Image 2026-02-05 at 10.49.36.jpeg: rejected
+  WhatsApp Image 2026-02-05 at 10.49.37 (1).jpeg: rejected
+  WhatsApp Image 2026-02-05 at 10.49.37.jpeg: rejected
+  WhatsApp Image 2026-02-05 at 10.49.38 (1).jpeg: rejected
+  WhatsApp Image 2026-02-05 at 10.49.38.jpeg: rejected
+  WhatsApp Image 2026-02-05 at 10.51.25.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.11.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.14.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.16.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.17.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.19 (1).jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.19.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.21.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.24.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.26.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.27.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.28.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.35 (1).jpeg: rejected
+  WhatsApp Image 2026-03-22 at 13.23.35.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 14.25.01.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 14.28.00.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 14.28.02.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 14.28.04.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 14.28.05.jpeg: rejected
+  WhatsApp Image 2026-03-22 at 14.31.11.jpeg: rejected
+
+  # NOTE: tv4.JPG, theatre-yoga-session_1.jpg, "WhatsApp Image 2026-11-14 at
+  # 11.44.34 AM (1).jpeg", "WhatsApp Image 2026-11-14 at 11.44.35 AM.jpeg",
+  # and "best pool image.jpeg" are deliberately NOT listed here — none of
+  # them were ever approved or rejected anywhere, so they're genuinely
+  # undecided and will correctly show up in the first gallery run.

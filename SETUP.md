@@ -35,20 +35,41 @@ Three things only you can do (they all require logging into your own accounts):
 Long-lived tokens expire. You'll need a refresh job eventually — flagging it now
 so it doesn't surprise you in ~60 days; not building it until the rest is proven out.
 
-## 2. Asset tagging (one-time, per asset)
+## 2. Asset tagging (per new asset, ~10 seconds of your time each)
 
 `build_rough_cut.py` in `../AI video editor/scripts/` deliberately uses a
 human-curated manifest instead of guessing from filenames — guessing already
 produced two real mistakes on this project (a pre-landscaping "grass" shot used
 as finished lawn; someone else's film mistaken for b-roll because it was
 playing on a screen in frame). This pipeline reuses that same curated list
-(`asset_manifest.yaml`) rather than re-guessing.
+(`asset_manifest.yaml`) rather than re-guessing — this is the one place
+"no human intervention" deliberately doesn't apply, because the cost of being
+wrong (publishing a construction photo, or someone else's footage) is higher
+than the cost of a quick look.
 
-When you add new footage/photos to `../AI video editor/Asset/`, add one line to
-`asset_manifest.yaml` yourself — same reasoning as the video editor's own
-manifest. This is the one place "no human intervention" deliberately doesn't
-apply, because the cost of being wrong (publishing a construction photo, or
-someone else's footage) is higher than the cost of one line of YAML.
+`scripts/review_new_assets.py` automates everything *except* that look. When
+you drop new footage/photos into `../AI video editor/Asset/` (any subfolder):
+
+```bash
+python3 scripts/review_new_assets.py generate
+```
+
+This scans `Asset/` for anything not already decided on (tracked in
+`asset_review_state.yaml`), builds thumbnails, and writes
+`drafts/asset_review/gallery.html` — open it in a real browser (not a preview
+pane; it needs local file access for the thumbnails). Check "Include" + fill
+in a role for anything worth posting, leave the rest unchecked, click
+"Generate decisions YAML", and save the text it produces as
+`drafts/asset_review/decisions.yaml`. Then:
+
+```bash
+python3 scripts/review_new_assets.py apply drafts/asset_review/decisions.yaml
+```
+
+This copies approved files into `public_assets/`, appends their entries to
+`asset_manifest.yaml`, and records every decision — including rejections, so
+a file you skip is never shown again. Both YAML files get text spliced in,
+not regenerated, so none of their hand-written comments get lost.
 
 ## 3. Asset hosting
 
