@@ -200,6 +200,21 @@ function generateYaml() {{
     print(f"  python3 {Path(__file__).name} apply {GALLERY_DIR / 'decisions.yaml'}")
 
 
+def compress_video(src, dest, max_width=1920, crf=26):
+    """Re-encodes rather than raw-copies: drone/phone originals can be
+    hundreds of MB at 4K/high-bitrate HEVC - GitHub hard-rejects any file over
+    100MB regardless of warnings, and public_assets/ doesn't need source
+    quality beyond what reel_render_engine re-scales to (1080x1920) at render
+    time anyway."""
+    subprocess.run([
+        FFMPEG, "-y", "-i", str(src),
+        "-vf", f"scale='min({max_width},iw)':-2",
+        "-c:v", "libx264", "-crf", str(crf), "-preset", "medium",
+        "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart",
+        str(dest),
+    ], check=True, capture_output=True)
+
+
 def apply(decisions_path):
     with open(decisions_path) as f:
         decisions = yaml.safe_load(f)["decisions"]
@@ -221,14 +236,24 @@ def apply(decisions_path):
             print(f"WARNING: {filename!r} not found under {ASSET_SOURCE_DIR}, skipping")
             continue
 
-        dest = PUBLIC_ASSETS_DIR / filename
-        dest.write_bytes(matches[0].read_bytes())
+        asset_type = "video" if Path(filename).suffix.lower() in {".mp4", ".mov"} else "image"
+        if asset_type == "video":
+            # Re-encode, don't raw-copy - see compress_video()'s docstring.
+            # Always normalize to .mp4 regardless of source container.
+            dest_name = Path(filename).stem + ".mp4"
+            dest = PUBLIC_ASSETS_DIR / dest_name
+            compress_video(matches[0], dest)
+            print(f"  compressed {filename} -> {dest_name} ({dest.stat().st_size // 1024}KB)")
+        else:
+            dest_name = filename
+            dest = PUBLIC_ASSETS_DIR / dest_name
+            dest.write_bytes(matches[0].read_bytes())
 
         entry = dict(
             id=next_id,
             role=d["role"],
-            type="video" if Path(filename).suffix.lower() in {".mp4", ".mov"} else "image",
-            path=f"public_assets/{filename}",
+            type=asset_type,
+            path=f"public_assets/{dest_name}",
             formats=d.get("formats") or ["luxury_carousel", "cinematic_reel"],
             default_caption=d.get("default_caption", ""),
         )
