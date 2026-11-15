@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import calendar as content_calendar  # local module, shadows stdlib `calendar` deliberately
+import content_calendar
 import assets as asset_lib
 import ideate
 import brand_qa
@@ -41,9 +41,11 @@ def run(target_date, dry_run=False, force_publish=False):
 
     # Record usage (and push, so it survives to tomorrow's run) right after
     # selection, before QA — a QA-failed day still shouldn't keep re-picking
-    # the same stale assets forever. Skipped on --dry-run: no side effects.
-    asset_lib.mark_used(selected, target_date)
+    # the same stale assets forever. Skipped entirely on --dry-run (including
+    # the local write, not just the push) — "no side effects" should mean
+    # exactly that.
     if not dry_run:
+        asset_lib.mark_used(selected, target_date)
         git_sync.push_file(
             asset_lib.ROTATION_STATE_PATH.relative_to(asset_lib.ROOT),
             f"rotation: mark {len(selected)} asset(s) used for {target_date} ({format_key})",

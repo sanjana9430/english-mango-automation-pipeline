@@ -32,7 +32,11 @@ def generate(format_key, format_spec, selected_assets):
     client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
     message = client.messages.create(
         model="claude-sonnet-5",
-        max_tokens=1500,
+        max_tokens=2000,
+        thinking={"type": "disabled"},  # extended thinking is on by default for this
+                                        # model/account and was consuming the entire
+                                        # token budget before any text came out —
+                                        # not needed for straightforward copy generation
         system=SYSTEM_PROMPT,
         messages=[
             {
@@ -46,7 +50,12 @@ def generate(format_key, format_spec, selected_assets):
             }
         ],
     )
-    text = message.content[0].text
+    text_blocks = [b.text for b in message.content if b.type == "text"]
+    if not text_blocks:
+        raise RuntimeError(f"no text block in Claude's response (got: {[b.type for b in message.content]})")
+    text = text_blocks[0].strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
     return json.loads(text)
 
 
