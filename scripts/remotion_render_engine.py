@@ -63,10 +63,18 @@ def render(timeline, brand, output_path):
 
     tmp = Path(tempfile.mkdtemp(prefix="em_remotion_"))
     silent_path = tmp / "silent.mp4"
-    subprocess.run(
+    result = subprocess.run(
         ["node", "render.mjs", "--props", str(props_path), "--out", str(silent_path)],
-        cwd=REMOTION_DIR, check=True, capture_output=True, text=True,
+        cwd=REMOTION_DIR, capture_output=True, text=True,
     )
+    if result.returncode != 0:
+        # check=True's CalledProcessError doesn't print stdout/stderr on its
+        # own - without this, a Chrome/Node crash (SIGABRT, OOM) shows up in
+        # cron logs as just a signal number with no indication of why.
+        print(f"render.mjs failed (exit {result.returncode}):")
+        print("--- stdout ---\n" + result.stdout)
+        print("--- stderr ---\n" + result.stderr)
+        result.check_returncode()
 
     total_duration = sum(b["duration"] for b in timeline["beats"]) - \
         max(len(timeline["beats"]) - 1, 0) * XFADE_DURATION
