@@ -16,9 +16,16 @@ def load_calendar():
 def resolve_format(date):
     """Returns the format key for `date`, or None if nothing is scheduled."""
     cal = load_calendar()
+    # PyYAML auto-parses an unquoted YYYY-MM-DD key as a date object, not a
+    # string - normalize both ways so it doesn't matter whether a given
+    # override was quoted in the YAML file.
+    overrides = {
+        (k.isoformat() if hasattr(k, "isoformat") else k): v
+        for k, v in cal.get("overrides", {}).items()
+    }
     override_key = date.isoformat()
-    if override_key in cal.get("overrides", {}):
-        return cal["overrides"][override_key]
+    if override_key in overrides:
+        return overrides[override_key]
     weekday = WEEKDAYS[date.weekday()]
     return cal["weekday_defaults"].get(weekday)
 

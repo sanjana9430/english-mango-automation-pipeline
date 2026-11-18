@@ -10,7 +10,10 @@ weekday_defaults:
 
 # Per-date overrides (holidays, launches, one-offs). Takes priority over weekday_defaults.
 # Format: YYYY-MM-DD: format_key, or YYYY-MM-DD: null to force a skip that day.
-overrides: {}
+overrides:
+  2026-11-18: cinematic_reel   # TEMPORARY: preponed from Friday to test the git_sync.py
+                                 # fix + the Remotion render path for real, on Linux, now
+                                 # rather than waiting. Remove this line after today.
 
 # Format definitions: what each key means downstream (ideation prompt, asset count, publish type).
 formats:
