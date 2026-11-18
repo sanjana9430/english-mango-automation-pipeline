@@ -45,6 +45,9 @@ def generate(format_key, format_spec, selected_assets):
                     f"BRAND SHEET:\n{brand_sheet_text}\n\n"
                     f"FORMAT: {format_spec['label']} ({format_spec['publish_type']})\n"
                     f"AVAILABLE ASSET ROLES (use only these, in a sensible order): {asset_roles}\n\n"
+                    f"Produce exactly {len(asset_roles)} beats total - one beat per asset role "
+                    f"listed above, each role used exactly once, in the order given. Do not "
+                    f"repeat a role or add extra beats, even if that count feels short.\n\n"
                     f"OUTPUT SCHEMA (strict JSON, no prose outside the JSON):\n{json.dumps(OUTPUT_SCHEMA, indent=2)}"
                 ),
             }
