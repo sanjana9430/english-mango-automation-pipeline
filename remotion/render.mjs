@@ -32,8 +32,24 @@ async function main() {
   // Linux build via the normal download path and never sets this env var.
   const browserExecutable = process.env.REMOTION_BROWSER_EXECUTABLE || undefined;
 
+  // Render.com's managed Docker runtime doesn't expose --shm-size, so the
+  // usual `docker run --shm-size=2g` fix for Chrome's /dev/shm 64MB default
+  // isn't available to us. This flag makes Chrome write shared memory to
+  // /tmp instead - slower, but avoids the crash without needing
+  // platform-level support. Needed on every Chrome launch Remotion makes,
+  // not just renderMedia()'s - selectComposition() opens its own separate
+  // instance to read composition metadata, and that one SIGABRTed in
+  // production (2026-11-18) because it never got this flag.
+  const chromiumOptions = { flags: { "disable-dev-shm-usage": true } };
+
   const serveUrl = await bundle({ entryPoint: path.join(__dirname, "src", "index.ts") });
-  const composition = await selectComposition({ serveUrl, id: "Reel", inputProps, browserExecutable });
+  const composition = await selectComposition({
+    serveUrl,
+    id: "Reel",
+    inputProps,
+    browserExecutable,
+    chromiumOptions,
+  });
 
   await renderMedia({
     serveUrl,
@@ -46,14 +62,7 @@ async function main() {
     // Caps peak RAM to a single Chrome process — correct trade for an
     // unattended daily cron job over render wall-clock speed.
     concurrency: 1,
-    chromiumOptions: {
-      // Render.com's managed Docker runtime doesn't expose --shm-size, so
-      // the usual `docker run --shm-size=2g` fix for Chrome's /dev/shm
-      // 64MB default isn't available to us. This flag makes Chrome write
-      // shared memory to /tmp instead - slower, but avoids the crash
-      // without needing platform-level support.
-      flags: { "disable-dev-shm-usage": true },
-    },
+    chromiumOptions,
   });
 }
 
