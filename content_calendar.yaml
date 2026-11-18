@@ -11,11 +11,13 @@ weekday_defaults:
 # Per-date overrides (holidays, launches, one-offs). Takes priority over weekday_defaults.
 # Format: YYYY-MM-DD: format_key, or YYYY-MM-DD: null to force a skip that day.
 overrides:
-  "2026-11-19": cinematic_reel   # TEMPORARY: still debugging the real Remotion render path
+  "2026-11-18": cinematic_reel   # TEMPORARY: still debugging the real Remotion render path
                                    # on Linux (git_sync.py fix and the music fix are both
-                                   # confirmed; chasing a Chrome SIGABRT now). Moved forward
-                                   # from 2026-11-18 since the date rolled over mid-debug.
-                                   # Remove this line once a real run renders + publishes clean.
+                                   # confirmed; chasing a Chrome SIGABRT now). NOTE: the Render
+                                   # container's date.today() runs in UTC, which lags the
+                                   # user's local IST clock by 5.5h - don't bump this date just
+                                   # because a local clock shows the next day. Remove this line
+                                   # once a real run renders + publishes clean.
 
 # Format definitions: what each key means downstream (ideation prompt, asset count, publish type).
 formats:
