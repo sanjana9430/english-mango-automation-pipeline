@@ -35,5 +35,3 @@ services:
         value: https://english-mango-assets.onrender.com   # update if Render assigns a different subdomain
       - key: GITHUB_PUSH_TOKEN
         sync: false
-      - key: ALLOW_PLACEHOLDER_MUSIC
-        value: "false"   # every reel fails QA and queues for review until this is a deliberate "true"

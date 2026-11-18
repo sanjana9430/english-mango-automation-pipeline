@@ -56,7 +56,12 @@ def generate(format_key, format_spec, selected_assets):
     text = text_blocks[0].strip()
     if text.startswith("```"):
         text = text.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-    return json.loads(text)
+    # Claude sometimes adds a trailing sentence after the JSON object despite
+    # the system prompt's "nothing else" - decode just the first JSON value
+    # and ignore anything after it, rather than requiring the whole string to
+    # be valid JSON (which broke a real run on 2026-11-18).
+    obj, _ = json.JSONDecoder().raw_decode(text)
+    return obj
 
 
 def save_draft(date, draft):

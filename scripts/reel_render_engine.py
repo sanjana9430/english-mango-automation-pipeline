@@ -17,6 +17,9 @@ don't crowd or float inconsistently), added crossfade transitions between
 beats (was a hard concat cut), and always append a fixed CTA/logo end card -
 previously no beat ever did this, since Claude's generated beats only ever
 reference real assets.
+
+2026-11-18: generate_music_bed() no longer synthesizes a placeholder - it
+trims a real licensed track instead. See MUSIC_TRACK_PATH.
 """
 import json
 import re
@@ -30,6 +33,11 @@ ASSET_DIR = ROOT / "public_assets"
 REF_DIR = ROOT / "references"
 RAW_DIR = ROOT / "drafts"  # reuses the existing gitignored drafts/ dir for render intermediates
 GRADIENT_PATH = REF_DIR / "gradient_scrim.png"
+# "Calm Ambient Dreamscape" by morgan-ambient, from Pixabay, free under the
+# Pixabay Content License (pixabay.com/service/license-summary/). To swap
+# tracks later: drop the new file in references/music/ and update this path -
+# brand_qa.py's reel check fails closed if this file is ever missing.
+MUSIC_TRACK_PATH = REF_DIR / "music" / "morgan-ambient-calm-ambient-dreamscape-529861.mp3"
 FFMPEG = shutil.which("ffmpeg") or str(Path.home() / "bin" / "ffmpeg")
 
 TEXT_LINE_HEIGHT = 70  # fontsize 58 + line_spacing 12, kept in sync with render_beat below
@@ -174,26 +182,15 @@ def render_beat(beat, brand, tmp, out_path):
 
 
 def generate_music_bed(duration, out_path):
-    """Still a synthesized placeholder (zero licensing risk) - swap for a real
-    licensed track before this ships for real. loudnorm targets -16 LUFS
-    integrated so it's actually audible; the previous flat volume=0.35
-    multiplier on an already-quiet synth measured -38dB mean, effectively
-    silent on a phone speaker."""
-    notes = [73.42, 110.0, 185.0, 220.0, 293.66]  # D2 A2 F#3 A3 D4 - warm open chord
-    weights = [1.0, 0.8, 0.5, 0.4, 0.3]
-    inputs = []
-    for f in notes:
-        inputs += ["-f", "lavfi", "-i", f"sine=frequency={f}:duration={duration}"]
-    mix = "".join(f"[{i}]" for i in range(len(notes)))
-    weight_str = " ".join(str(w) for w in weights)
-    filt = (
-        f"{mix}amix=inputs={len(notes)}:weights='{weight_str}':normalize=0,"
-        f"highpass=f=50,lowpass=f=2500,tremolo=f=0.15:d=0.3,"
-        f"aecho=0.6:0.5:500:0.3,"
-        f"afade=t=in:d=2,afade=t=out:st={max(duration - 3, 0)}:d=3,"
-        f"loudnorm=I=-16:LRA=11:TP=-1.5"
-    )
-    cmd = [FFMPEG, "-y", *inputs, "-filter_complex", filt, "-c:a", "aac", "-b:a", "160k", str(out_path)]
+    """Trims MUSIC_TRACK_PATH (a real licensed track, see its comment at the
+    top of this file) to this reel's exact duration, with a short fade in/out
+    and the same loudness normalization the old synthesized placeholder used
+    (-16 LUFS integrated - audible on a phone speaker, not clipping). Always
+    starts from 0:00 - the track is far longer than any reel, so no looping
+    is ever needed, and a fixed start keeps output deterministic."""
+    filt = f"afade=t=in:d=2,afade=t=out:st={max(duration - 3, 0)}:d=3,loudnorm=I=-16:LRA=11:TP=-1.5"
+    cmd = [FFMPEG, "-y", "-i", str(MUSIC_TRACK_PATH), "-t", str(duration),
+           "-filter:a", filt, "-c:a", "aac", "-b:a", "160k", str(out_path)]
     subprocess.run(cmd, check=True, capture_output=True)
 
 

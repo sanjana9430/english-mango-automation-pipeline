@@ -136,13 +136,18 @@ is a **fine-grained GitHub PAT**, scoped to only the
 set in `.env` / the Render dashboard. Generate it at
 https://github.com/settings/personal-access-tokens/new.
 
-Separately: the music bed is still a synthesized placeholder (unchanged by
-the Remotion migration — audio generation/muxing stayed in Python/ffmpeg on
-purpose, see the migration plan's §3). `brand_qa.py` fails every reel closed
-until you set `ALLOW_PLACEHOLDER_MUSIC=true` — a deliberate choice, not a
-default. Do that once you've either accepted the placeholder for now, or
-wired in a real track (Instagram's own in-app audio library is the easiest
-licensed option).
+Separately: the music bed (unchanged by the Remotion migration — audio
+generation/muxing stayed in Python/ffmpeg on purpose, see the migration
+plan's §3) is a real licensed track — "Calm Ambient Dreamscape" by
+morgan-ambient, from Pixabay, free for commercial use under the
+[Pixabay Content License](https://pixabay.com/service/license-summary/), no
+attribution required — trimmed to each reel's exact length with a fade
+in/out and loudness normalization. It lives at
+`references/music/morgan-ambient-calm-ambient-dreamscape-529861.mp3`.
+`brand_qa.py` fails every reel closed if that file is ever missing or
+renamed, rather than trusting a flag that could drift out of sync. To swap
+in a different track later, drop the new file in `references/music/` and
+update `MUSIC_TRACK_PATH` in `reel_render_engine.py`.
 
 ## 6. Local Remotion testing
 
