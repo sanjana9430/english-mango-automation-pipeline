@@ -22,6 +22,11 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile
     schedule: "0 9 * * *"   # 09:00 UTC daily; adjust to your actual posting time
+    plan: 1c-2g   # 2026-11-18: the default 0.5c-512mb plan OOM'd running Python +
+                  # Node's esbuild bundler + headless Chrome + Remotion together -
+                  # confirmed via a real crash (V8 heap exhaustion), not a guess.
+                  # Costs ~$0.00058/min vs $0.00016/min, negligible given this job
+                  # runs a few minutes a day.
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false
