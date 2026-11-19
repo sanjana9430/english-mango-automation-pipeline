@@ -217,3 +217,23 @@ skip the day silently — it writes the full draft + storyboard + QA reasons to
 `review_queue/YYYY-MM-DD.json` and exits non-zero (so Render's run shows as
 failed, which you'll see). Fix and re-run with `--date YYYY-MM-DD` to retry that
 day, or `--force-publish` to override the gate once you've reviewed it manually.
+
+## Review before publish (2026-11-19)
+
+Even when QA passes, the pipeline no longer publishes straight to Instagram.
+It renders the reel (or confirms the carousel's assets) exactly as it would
+for a real publish, writes the result — full draft, caption, and the public
+video/asset URL — to `pending_publish/YYYY-MM-DD.json`, pushes that file (the
+only thing that survives this container exiting, since Render cron containers
+don't keep local disk between runs), and prints the same content to the run's
+logs. It exits 0 — this is the pipeline working as designed, not a failure.
+
+Review the printed draft/video, then approve it by setting the
+`APPROVE_PUBLISH_DATE=YYYY-MM-DD` environment variable on the cron service and
+triggering a run (dashboard "Trigger Run", or `run_cron_job` via the Render
+MCP). That run skips the normal pipeline entirely — see `scripts/orchestrate.py`'s
+`__main__` block — and instead publishes exactly what's saved in
+`pending_publish/`, via `scripts/publish_approved.py`. It never re-runs
+ideation or rendering, so what gets published always matches what was
+reviewed, not a freshly-regenerated draft. Clear the env var afterward so a
+later normal run doesn't re-trigger approval mode for a stale date.
