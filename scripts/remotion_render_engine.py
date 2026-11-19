@@ -25,6 +25,15 @@ PROPS_DIR = RAW_DIR / "_remotion_props"
 # constant here rather than two independent magic numbers in Python and TS.
 XFADE_DURATION = 0.4
 
+# Longer edge, px. Curated source photos run up to 6000x4000 (two are
+# 2528x1696) - full camera resolution, way past what a 1080x1920 output with
+# modest Ken-Burns zoom needs. Chrome decodes each <Img> to an uncompressed
+# bitmap, so staging originals straight through was ballooning the render's
+# memory footprint (confirmed: the 2026-11-18 run OOM-killed at >2GB on a
+# 9-beat reel whose assets included a 24-megapixel JPEG). 2160 gives ~2x the
+# output height for zoom headroom with a fraction of the decoded memory.
+IMAGE_MAX_EDGE = 2160
+
 
 def _stage_assets(timeline):
     """Remotion's staticFile() only resolves against its own public/ dir -
@@ -33,7 +42,16 @@ def _stage_assets(timeline):
     assets_dir.mkdir(parents=True, exist_ok=True)
     for beat in timeline["beats"]:
         for fname in beat["assets"]:
-            shutil.copy(ASSET_DIR / fname, assets_dir / fname)
+            dest = assets_dir / fname
+            if beat["type"] == "image":
+                subprocess.run(
+                    [FFMPEG, "-y", "-i", str(ASSET_DIR / fname), "-vf",
+                     f"scale='min({IMAGE_MAX_EDGE},iw)':'min({IMAGE_MAX_EDGE},ih)':force_original_aspect_ratio=decrease",
+                     "-update", "1", "-frames:v", "1", str(dest)],
+                    check=True, capture_output=True,
+                )
+            else:
+                shutil.copy(ASSET_DIR / fname, dest)
     shutil.copy(REF_DIR / "gradient_scrim.png", assets_dir / "gradient_scrim.png")
 
     fonts_dir = REMOTION_DIR / "public" / "fonts"
