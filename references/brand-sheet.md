@@ -77,6 +77,31 @@ English Mango is one villa, not a multi-property roundup — so the "4 Newly Lau
 - **Caption copy:** sharpen section 3's caption guidance with what the carousel set confirmed more strongly — lead with a "Save this for your next trip" or "Save & share" line near the top (not just the end), then an emoji-led bullet per amenity (🏊 pool, 🛕 private marble sanctum, 🎬 home theatre, 🏋️ gym), then the location line. More emoji-forward than the reel captions, matching what this specific sub-genre (carousel, not reel) actually does.
 - **Last slide:** CTA/end-card, same convention as the reel's CTA beat — property name + englishmango.com, Playfair Display, held static (a carousel's last slide is naturally "held" the way a reel's end card is).
 
+## 6. Actual @englishmangoluxury posts — the target standard (2026-11-19)
+
+Unlike sections 2–5 (other creators' reels/carousels in the same niche, used to infer direction), these two are **the brand's own published posts**, specified directly as *"this is how it should be... this is how reels and posts and carousels should look like."* This section takes priority over 2–5 wherever they conflict.
+
+**Reel** (`Df4I-EZSfRo`, "Kumbh 2027 starts 14 Jan. Do it the calm way."): opening frame is the deep forest-green (`#1F2E26`) background, small tracked-out all-caps amber/gold (`#9F5E09`) label top-left reading "KUMBH 2027 · HARIDWAR", small cream `@englishmangoluxury` watermark bottom-left. Extremely restrained — large areas of flat dark negative space, minimal text, no card/box behind it. This matches section 3's "minimal restraint reads as more premium" finding closely.
+
+**Carousel** (`Df2SS8okjRG`, "Most people try to do Haridwar in one day...", 10 slides) — this is the more significant find; it's noticeably more structured than what sections 4–5 described or what the current render engine (`remotion/src/beats/Caption.tsx` etc.) produces:
+- **Alternating slide backgrounds**: dark forest-green slides (cover, and others) alternate with warm cream/beige (`#EBE7E0`-toned) slides — not every slide shares one background.
+- **Consistent small amber eyebrow label**, top-left, same wording across all slides in a post ("HARIDWAR, SLOWLY") — a running series title, distinct from the per-slide headline.
+- **Large serif (Playfair Display) headline** per slide — the actual hook/point of that slide, e.g. "Think in areas, not checklists." / "Arrive & slow down" — not a single plain caption line.
+- **Body paragraph** below the headline in regular-weight sans (Inter), 2–3 sentences, actual prose rather than a bullet fragment.
+- **A highlighted callout/tip box** near the bottom of several slides — a lighter rounded rectangle (tan on the green slides, slightly darker cream on the cream slides) containing one bolded-partial-phrase fact or tip, e.g. *"English Mango sits on the Haridwar Highway, about **20 minutes (15 km)** from Har Ki Pauri — close enough for darshan, far enough for sleep."* / *"**Villa tip:** Don't plan sightseeing on arrival day..."*
+- **Day-by-day slides use a labeled timeline list**: small amber time-of-day labels (AFTERNOON / SUNSET / NIGHT) each paired with one short line, under a thin horizontal divider below the slide's headline.
+- Consistent bottom-left `@englishmangoluxury` watermark on every slide, same as the reel.
+
+**Gap to flag honestly**: the current Remotion render engine (`remotion/src/beats/`) does not yet produce this — it renders one short plain caption per beat over a Ken-Burns photo, no eyebrow label, no alternating background slides, no callout boxes, no timeline-list layout. Matching this reference properly means extending the beat components (new props for eyebrow text, callout-box content, optional timeline items), not just a copy/prompt tweak in `ideate.py`. Flagging this as a real gap rather than quietly building toward it — worth a separate, deliberate pass when you're ready, not bundled into today's bug-fixing.
+
+## 7. Color-grading reference — two Rome reels (not villa content)
+
+`DTh9VnJjMjR` and `DYlQPhMRJHB` (Terrazza delle Quadrighe, Rome) are off-niche for subject matter — explicitly referenced for **lighting/color only**, not composition or text style:
+- `DTh9VnJjMjR`: golden-hour backlight through tall stone columns, warm amber/orange sky glow, silhouetted figures, soft sun flare — the warmer of the two.
+- `DYlQPhMRJHB`: same column-framing technique in bright daylight — cool blue sky, hazy warm-toned skyline in the distance, small plain white drop-shadowed caption centered ("My favorite hidden gem in Rome").
+
+Shared technique worth noting for shot selection/grading (not for the villa's own architecture, which is a different style of building): strong **architectural-element framing** — shooting through columns/arches toward a view, rather than a plain wide establishing shot — plus a preference for natural warm light over flat/neutral grading. Relevant to shot composition and color grading only; not a layout or text-treatment reference.
+
 ## Note on sourcing
 
-The 7 reference reels (section 2) and 4 reference carousels (section 4) were reviewed via Instagram's own post data and on-page review — thumbnail/slide frames, on-screen text, and caption copy — to extract style patterns only. No video files or image files were downloaded or saved — that's a deliberate call to stay clear of using other creators' copyrighted footage without permission. If you want actual clips/images as literal visual reference (not just notes), save them yourself via Instagram's native save/share or a screen recording and drop the files directly into this `references/` folder.
+The 7 reference reels (section 2) and 4 reference carousels (section 4) were reviewed via Instagram's own post data and on-page review — thumbnail/slide frames, on-screen text, and caption copy — to extract style patterns only. No video files or image files were downloaded or saved — that's a deliberate call to stay clear of using other creators' copyrighted footage without permission. Sections 6–7 (the brand's own posts and two color-grading references) were reviewed the same way — on-page only, nothing downloaded. If you want actual clips/images as literal visual reference (not just notes), save them yourself via Instagram's native save/share or a screen recording and drop the files directly into this `references/` folder.
