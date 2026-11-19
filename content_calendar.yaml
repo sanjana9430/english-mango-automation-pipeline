@@ -10,16 +10,11 @@ weekday_defaults:
 
 # Per-date overrides (holidays, launches, one-offs). Takes priority over weekday_defaults.
 # Format: YYYY-MM-DD: format_key, or YYYY-MM-DD: null to force a skip that day.
-overrides:
-  "2026-11-19": cinematic_reel   # TEMPORARY: still debugging the real Remotion render path
-                                   # on Linux (git_sync.py fix and the music fix are both
-                                   # confirmed; chasing a memory OOM now). Moved forward from
-                                   # 2026-11-18 because UTC itself (not just local IST) actually
-                                   # rolled over - confirmed via a deploy timestamp
-                                   # (2026-11-19T04:12Z), not assumed from a local clock. Verify
-                                   # the real UTC date the same way before ever bumping this
-                                   # again. Remove this line once a real run renders + publishes
-                                   # clean.
+overrides: {}
+# 2026-11-19's test override (prepone the Remotion/render-path debugging)
+# removed here - that day's run already rendered + published clean, so
+# there's nothing left to retry and no reason to force another reel onto
+# the same date. The real schedule is weekday_defaults from here on.
 
 # Format definitions: what each key means downstream (ideation prompt, asset count, publish type).
 formats:
