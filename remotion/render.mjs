@@ -63,6 +63,14 @@ async function main() {
     // unattended daily cron job over render wall-clock speed.
     concurrency: 1,
     chromiumOptions,
+    // Default is null -> half of whatever memory Remotion detects as
+    // "available" when the render starts. On this 2GB container that's up
+    // to ~1GB handed to OffthreadVideo's frame cache alone, on top of
+    // Chrome + Node + the esbuild bundle output - confirmed as the real
+    // driver of two straight >2GB OOM-kills (2026-11-19), after downscaling
+    // images didn't fix it. 150MB is plenty for a single ~12s clip read
+    // sequentially at concurrency 1.
+    offthreadVideoCacheSizeInBytes: 150 * 1024 * 1024,
   });
 }
 
