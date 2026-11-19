@@ -120,6 +120,48 @@ assets:
     formats: [luxury_carousel, cinematic_reel]
     default_caption: ""
 
+  - id: 16
+    role: "Night Camp"
+    type: image
+    path: "public_assets/WhatsApp Image 2026-11-19 at 6.38.32 PM.jpeg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
+  - id: 17
+    role: "Room Lobby"
+    type: image
+    path: "public_assets/WhatsApp Image 2026-11-19 at 6.40.35 PM.jpeg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
+  - id: 18
+    role: "Sunset"
+    type: image
+    path: "public_assets/WhatsApp Image 2026-11-19 at 6.42.16 PM (1).jpeg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
+  - id: 19
+    role: "Dining Together"
+    type: image
+    path: "public_assets/WhatsApp Image 2026-11-19 at 6.42.16 PM (2).jpeg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
+  - id: 20
+    role: "First Birthday Function Organised"
+    type: image
+    path: "public_assets/WhatsApp Image 2026-11-19 at 6.42.16 PM.jpeg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
+  - id: 21
+    role: "Private Gym"
+    type: image
+    path: "public_assets/gym.jpeg"
+    formats: [luxury_carousel, cinematic_reel]
+    default_caption: ""
+
 # Explicitly excluded, carried over from build_rough_cut.py so this pipeline
 # doesn't re-select something already ruled out there for a documented reason.
 excluded:
